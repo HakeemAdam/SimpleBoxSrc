@@ -29,7 +29,8 @@ static PRM_Default defaults[]=
     PRM_Default(1.0f),
     PRM_Default(0.0f),
     PRM_Default(0.0f),
-    PRM_Default(0.0f)
+    PRM_Default(0.0f),
+    PRM_Default(2.0f)
 };
 
 static PRM_Template myTemplateList[] =
@@ -38,7 +39,7 @@ static PRM_Template myTemplateList[] =
     PRM_Template(PRM_XYZ, 3, &names[1], defaults+3),
     PRM_Template(PRM_XYZ, 3, &names[2], defaults+3),
     PRM_Template(PRM_FLT, 1, &names[3], &defaults[0]),
-    PRM_Template(PRM_INT, 1, &names[4], &defaults[0]),
+    PRM_Template(PRM_INT, 1, &names[4], &defaults[6]),
     PRM_Template()
     };
 
