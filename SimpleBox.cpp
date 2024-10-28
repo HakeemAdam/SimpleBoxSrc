@@ -126,6 +126,33 @@ OP_ERROR SimpleBox::cookMySop(OP_Context& context)
     {
         gdp->polymeshCube(div,div,div,xmin,xmax,ymin,ymax,zmin,zmax,GEO_PATCH_QUADS,true);
     }
+
+
+    UT_Vector3 trans;
+    trans[0] = evalFloat("center", 0, context.getTime());
+    trans[1] = evalFloat("center", 1, context.getTime());
+    trans[2] = evalFloat("center", 2, context.getTime());
+    
+    gdp->translate(trans);
+
+    UT_Vector3 rotate;
+    rotate[0] = evalFloat("rotate", 0, context.getTime());
+    rotate[1] = evalFloat("rotate", 1, context.getTime());
+    rotate[2] = evalFloat("rotate", 2, context.getTime());
+    
+    UT_Matrix3 stretch;
+    stretch.identity();   // Initialize as identity matrix
+    float scale = evalFloat("uniScale", 0, context.getTime());
+    stretch(0,0) = scale;  // X scale (first diagonal element)
+    stretch(1,1) = scale;  // Y scale (second diagonal element)
+    stretch(2,2) = scale; 
+
+    UT_Matrix4 fullTransform;
+    UT_XformOrder::rstOrder order = UT_XformOrder::RST; 
+    fullTransform.compose(order, trans,rotate,stretch);
+    gdp->transform(fullTransform);
+    
+    
     //gdp->cube(xmin, xmax, ymin, ymax, zmin, zmax, div, div, div, 0,1);
     //gdp->meshCube(div,div,div,xmin, xmax,ymin,ymax,zmin,zmax,GEO_PATCH_QUADS,true);
     
