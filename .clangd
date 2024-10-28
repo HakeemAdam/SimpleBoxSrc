@@ -1,0 +1,10 @@
+﻿CompileFlags:
+  Add: 
+    - "-IC:/Program Files/Side Effects Software/Houdini 20.5.278/toolkit/include"
+    - "-IC:/Program Files/Side Effects Software/Houdini 20.5.278/toolkit/include/HAPI"
+    - "-IC:/Program Files/Side Effects Software/Houdini 20.5.278/toolkit/include/OP"
+    - "-IC:/Program Files/Side Effects Software/Houdini 20.5.278/toolkit/include/SOP"
+    - "-IC:/Program Files/Side Effects Software/Houdini 20.5.278/toolkit/include/GU"
+    - "-IC:/Program Files/Side Effects Software/Houdini 20.5.278/toolkit/include/PRM"
+    - "-IC:/Program Files/Side Effects Software/Houdini 20.5.278/toolkit/include/UT"
+    - "-IC:/Program Files/Side Effects Software/Houdini 20.5.278/toolkit/include/GA"
