@@ -37,6 +37,8 @@ static PRM_Name names[]=
     PRM_Name("uniScale", "Uniform Scale"),
     PRM_Name("axis_division", "Axis Division"),
     PRM_Name("boxtype", "Box Type"),
+    PRM_Name("addColor", "Add Color"),
+    PRM_Name("color", "Color"),
     PRM_Name(0)
 };
 
@@ -61,7 +63,9 @@ static PRM_Template myTemplateList[] =
     PRM_Template(PRM_XYZ, 3, &names[2], defaults+3),
     PRM_Template(PRM_FLT, 1, &names[3], &defaults[0]),
     PRM_Template(PRM_INT, 1, &names[4], &defaults[6]),
-    PRM_Template(PRM_ORD, 1, &names[5], 0, &typeMenu), 
+    PRM_Template(PRM_ORD, 1, &names[5], 0, &typeMenu),
+    PRM_Template(PRM_TOGGLE,1, &names[6], &defaults[3]),
+    PRM_Template(PRM_RGB, 3, &names[7],defaults+3),
     PRM_Template()
     };
 
@@ -99,19 +103,24 @@ OP_ERROR SimpleBox::cookMySop(OP_Context& context)
     OP_AutoLockInputs inputs(this);
     if(inputs.lock(context) >= UT_ERROR_ABORT)
         return  error();
+
+    
     gdp->clear();
-    float xmin = -evalFloat("size", 0, context.getTime())/2.0f;
-    float xmax = evalFloat("size", 0, context.getTime())/2.0f;
 
-    float ymin = -evalFloat("size", 1, context.getTime())/2.0f;
-    float ymax = evalFloat("size", 1, context.getTime())/2.0f;
+    fpreal now = context.getTime();
+    
+    float xmin = -evalFloat("size", 0, now)/2.0f;
+    float xmax = evalFloat("size", 0, now)/2.0f;
 
-    float zmin = -evalFloat("size", 2, context.getTime())/2.0f;
-    float zmax = evalFloat("size", 2, context.getTime())/2.0f;
+    float ymin = -evalFloat("size", 1, now)/2.0f;
+    float ymax = evalFloat("size", 1, now)/2.0f;
 
-    int div = evalInt("axis_division", 0, context.getTime());
+    float zmin = -evalFloat("size", 2, now)/2.0f;
+    float zmax = evalFloat("size", 2, now)/2.0f;
 
-    int boxType = evalInt("boxtype", 0, context.getTime());
+    int div = evalInt("axis_division", 0, now);
+
+    int boxType = evalInt("boxtype", 0, now);
 
     if(boxType ==0)
     {
@@ -129,20 +138,18 @@ OP_ERROR SimpleBox::cookMySop(OP_Context& context)
 
 
     UT_Vector3 trans;
-    trans[0] = evalFloat("center", 0, context.getTime());
-    trans[1] = evalFloat("center", 1, context.getTime());
-    trans[2] = evalFloat("center", 2, context.getTime());
-    
-    gdp->translate(trans);
+    trans[0] = evalFloat("center", 0, now);
+    trans[1] = evalFloat("center", 1, now);
+    trans[2] = evalFloat("center", 2, now);
 
     UT_Vector3 rotate;
-    rotate[0] = evalFloat("rotate", 0, context.getTime());
-    rotate[1] = evalFloat("rotate", 1, context.getTime());
-    rotate[2] = evalFloat("rotate", 2, context.getTime());
+    rotate[0] = evalFloat("rotate", 0, now);
+    rotate[1] = evalFloat("rotate", 1, now);
+    rotate[2] = evalFloat("rotate", 2, now);
     
     UT_Matrix3 stretch;
     stretch.identity();   // Initialize as identity matrix
-    float scale = evalFloat("uniScale", 0, context.getTime());
+    float scale = evalFloat("uniScale", 0, now);
     stretch(0,0) = scale;  // X scale (first diagonal element)
     stretch(1,1) = scale;  // Y scale (second diagonal element)
     stretch(2,2) = scale; 
@@ -151,10 +158,27 @@ OP_ERROR SimpleBox::cookMySop(OP_Context& context)
     UT_XformOrder::rstOrder order = UT_XformOrder::RST; 
     fullTransform.compose(order, trans,rotate,stretch);
     gdp->transform(fullTransform);
+
+    int toggleCd = evalInt("addColor", 0, now);
     
-    
-    //gdp->cube(xmin, xmax, ymin, ymax, zmin, zmax, div, div, div, 0,1);
-    //gdp->meshCube(div,div,div,xmin, xmax,ymin,ymax,zmin,zmax,GEO_PATCH_QUADS,true);
-    
+    UT_String cdAttr = "Cd";
+    fpreal colorVals[3];
+    evalFloats("color",colorVals,now);
+    UT_Vector3 cdVal(colorVals[0], colorVals[1], colorVals[2]);
+
+    if(toggleCd ==1)
+    {
+        GA_RWHandleV3 handle = gdp->addFloatTuple(GA_ATTRIB_PRIMITIVE,cdAttr, 3);
+        if(handle.isValid())
+        {
+            GA_Offset ptoff;
+            GA_FOR_ALL_PRIMOFF(gdp,ptoff)
+            {
+                handle.set(ptoff,cdVal);
+            }
+        }
+    }
+  
+ 
     return error();
 }
