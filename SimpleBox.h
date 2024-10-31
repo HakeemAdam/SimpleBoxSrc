@@ -15,6 +15,9 @@ protected:
     virtual ~SimpleBox();
 
     virtual OP_ERROR cookMySop(OP_Context &context);
+
+private:
+    void computeUVsAndNormals(GU_Detail *gdp);
 };
 
 

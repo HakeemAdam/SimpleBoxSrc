@@ -97,6 +97,39 @@ SimpleBox::~SimpleBox()
 {
 }
 
+
+void SimpleBox::computeUVsAndNormals(GU_Detail* gdp)
+{
+    UT_Vector3 N;
+    UT_String normalAttr = "N";
+    GA_RWHandleV3 handle = gdp->addFloatTuple(GA_ATTRIB_PRIMITIVE,normalAttr, 3);
+    if(handle.isValid())
+    {
+        GA_Offset primoff;
+        GA_FOR_ALL_PRIMOFF(gdp,primoff)
+        {
+          GEO_Primitive* prim =  gdp->getGEOPrimitive(primoff);
+            gdp->computeNormal(*prim, N);
+            handle.set(primoff,N);
+        }
+    }
+
+    UT_Vector2 uv(0.0f);
+    UT_String uvAttr = "uv";
+    GA_RWHandleV2 uvHandle = gdp->addFloatTuple(GA_ATTRIB_PRIMITIVE, uvAttr, 2);
+    if(uvHandle.isValid())
+    {
+        GA_Offset primoff;
+        GA_FOR_ALL_PRIMOFF(gdp,primoff)
+        {
+            GEO_Primitive* prim =  gdp->getGEOPrimitive(primoff);
+            uvHandle.set(primoff,uv);
+        }
+    }
+    
+}
+
+
 OP_ERROR SimpleBox::cookMySop(OP_Context& context)
 {
 
@@ -178,7 +211,10 @@ OP_ERROR SimpleBox::cookMySop(OP_Context& context)
             }
         }
     }
+
+    computeUVsAndNormals(gdp);
   
  
     return error();
 }
+
